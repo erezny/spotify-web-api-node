@@ -33,7 +33,7 @@ var _getErrorObject = function(defaultMessage, err, response) {
   var errorObject;
   if (typeof err.error === 'object' && typeof err.error.message === 'string') {
     if ( err.error.status===429 ) {
-      console.log('%j', response);
+      console.log('%j', response.headers);
       errorObject = new WebapiRateLimitError(err.error.message, err.error.status, 12);
     } else {
       // Web API Error format
@@ -49,7 +49,7 @@ var _getErrorObject = function(defaultMessage, err, response) {
     try {
       var parsedError = JSON.parse(err);
       if ( parsedError.error.status===429 ) {
-        console.log('%j', response);
+        console.log('%j', response.headers);
         errorObject = new WebapiRateLimitError(parsedError.error.message, parsedError.error.status, 12 );
       } else {
         // Web API Error format
