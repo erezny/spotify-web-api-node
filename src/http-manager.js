@@ -48,7 +48,7 @@ var _getErrorObject = function(defaultMessage, err, response) {
     // Serialized JSON error
     try {
       var parsedError = JSON.parse(err);
-      if ( err.error.status===429 ) {
+      if ( parsedError.error.status===429 ) {
         console.log('%j', response);
         errorObject = new WebapiRateLimitError(parsedError.error.message, parsedError.error.status, 12 );
       } else {
