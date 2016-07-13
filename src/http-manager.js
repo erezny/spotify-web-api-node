@@ -28,29 +28,30 @@ var _getParametersFromRequest = function(request) {
 };
 
 /* Create an error object from an error returned from the Web API */
-var _getErrorObject = function(defaultMessage, err) {
+var _getErrorObject = function(defaultMessage, err, response) {
+  var headers = response.headers || {};
   var errorObject;
   if (typeof err.error === 'object' && typeof err.error.message === 'string') {
     // Web API Error format
-    errorObject = new WebApiError(err.error.message, err.error.status);
+    errorObject = new WebApiError(err.error.message, err.error.status, headers);
   } else if (typeof err.error === 'string') {
     // Authorization Error format
     /* jshint ignore:start */
-    errorObject = new WebApiError(err.error + ': ' + err['error_description']);
+    errorObject = new WebApiError(err.error + ': ' + err['error_description'], null, headers);
     /* jshint ignore:end */
   } else if (typeof err === 'string') {
     // Serialized JSON error
     try {
       var parsedError = JSON.parse(err);
-      errorObject = new WebApiError(parsedError.error.message, parsedError.error.status);
-    } catch (err) { 
+      errorObject = new WebApiError(parsedError.error.message, parsedError.error.status, headers);
+    } catch (err) {
       // Error not JSON formatted
     }
   }
 
   if(!errorObject) {
     // Unexpected format
-    errorObject = new WebApiError(defaultMessage + ': ' + JSON.stringify(err));
+    errorObject = new WebApiError(defaultMessage + ': ' + JSON.stringify(err), null, headers);
   }
 
   return errorObject;
@@ -76,7 +77,7 @@ HttpManager._makeRequest = function(method, options, uri, callback) {
     if (err) {
       var errorObject = _getErrorObject('Request error', {
         error: err
-      });
+      }, response);
       return callback(errorObject);
     }
 
